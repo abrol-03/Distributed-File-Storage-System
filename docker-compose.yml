@@ -1,0 +1,111 @@
+version: "3.9"
+
+services:
+  # ─── Coordinator / Metadata Server ─────────────────────────────────────────
+  coordinator:
+    build:
+      context: ./coordinator
+      dockerfile: Dockerfile
+    container_name: dfs-coordinator
+    ports:
+      - "8000:8000"
+    volumes:
+      - coordinator_data:/app/data
+    networks:
+      - dfs-net
+    restart: unless-stopped
+
+  # ─── Storage Node A ─────────────────────────────────────────────────────────
+  node_a:
+    build:
+      context: ./storage_node
+      dockerfile: Dockerfile
+    container_name: dfs-node-a
+    ports:
+      - "8001:8001"
+    environment:
+      NODE_ID: node_a
+      NODE_PORT: "8001"
+      NODE_PUBLIC_URL: http://node_a:8001
+      COORDINATOR_URL: http://coordinator:8000
+      STORAGE_DIR: /app/data/node_a
+      HEARTBEAT_INTERVAL: "10"
+    volumes:
+      - node_a_data:/app/data/node_a
+    networks:
+      - dfs-net
+    depends_on:
+      - coordinator
+    restart: unless-stopped
+
+  # ─── Storage Node B ─────────────────────────────────────────────────────────
+  node_b:
+    build:
+      context: ./storage_node
+      dockerfile: Dockerfile
+    container_name: dfs-node-b
+    ports:
+      - "8002:8002"
+    environment:
+      NODE_ID: node_b
+      NODE_PORT: "8002"
+      NODE_PUBLIC_URL: http://node_b:8002
+      COORDINATOR_URL: http://coordinator:8000
+      STORAGE_DIR: /app/data/node_b
+      HEARTBEAT_INTERVAL: "10"
+    volumes:
+      - node_b_data:/app/data/node_b
+    networks:
+      - dfs-net
+    depends_on:
+      - coordinator
+    restart: unless-stopped
+
+  # ─── Storage Node C ─────────────────────────────────────────────────────────
+  node_c:
+    build:
+      context: ./storage_node
+      dockerfile: Dockerfile
+    container_name: dfs-node-c
+    ports:
+      - "8003:8003"
+    environment:
+      NODE_ID: node_c
+      NODE_PORT: "8003"
+      NODE_PUBLIC_URL: http://node_c:8003
+      COORDINATOR_URL: http://coordinator:8000
+      STORAGE_DIR: /app/data/node_c
+      HEARTBEAT_INTERVAL: "10"
+    volumes:
+      - node_c_data:/app/data/node_c
+    networks:
+      - dfs-net
+    depends_on:
+      - coordinator
+    restart: unless-stopped
+
+  # ─── Frontend (React) ───────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: dfs-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:8000
+    networks:
+      - dfs-net
+    depends_on:
+      - coordinator
+    restart: unless-stopped
+
+networks:
+  dfs-net:
+    driver: bridge
+
+volumes:
+  coordinator_data:
+  node_a_data:
+  node_b_data:
+  node_c_data:
