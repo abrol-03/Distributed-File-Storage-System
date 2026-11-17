@@ -305,7 +305,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* Nav */}
+          {/* Nav (Hidden for now as it is not usable)
           <nav className="sidebar-nav">
             <button className="nav-item active">
               <span className="nav-icon"><Icons.Activity /></span>
@@ -328,6 +328,7 @@ export default function App() {
               <span className="nav-label">Health</span>
             </button>
           </nav>
+          */}
 
           {/* Footer */}
           <div className="sidebar-footer">
@@ -343,7 +344,11 @@ export default function App() {
             </div>
             <button
               className="btn-distribute"
-              onClick={() => setActiveTab('upload')}
+              onClick={() => {
+                setActiveTab('upload');
+                const el = document.getElementById('files-section');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
             >
               Distribute File
             </button>
@@ -411,10 +416,6 @@ export default function App() {
 
                     return (
                       <div key={n.node_id} className={`node-card ${tintClass}`}>
-                        <button className="node-menu-btn">
-                          <Icons.MoreVertical />
-                        </button>
-
                         <div>
                           <div className="node-icon-wrap">
                             <Icons.HardDrive />
@@ -486,7 +487,7 @@ export default function App() {
             </div>
 
             {/* ── Content Grid: Files + Upload ── */}
-            <div className="content-grid">
+            <div className="content-grid" id="files-section">
 
               {/* Files Card */}
               <div className="files-card">
